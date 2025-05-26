@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GGbalancee — Вход и Регистрация</title>
+<style>
+  body {
+    margin: 0; padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #ffeb3b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+  h1, h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  button, select, input {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 350px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  button {
+    background-color: #ffeb3b;
+    color: #121212;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #fbc02d;
+  }
+  input, select {
+    background-color: #222;
+    color: #ffeb3b;
+  }
+  input::placeholder {
+    color: #ffd600aa;
+  }
+  form {
+    max-width: 350px;
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  #user-info {
+    margin: 15px 0;
+    font-weight: bold;
+    text-align: center;
+  }
+  #purchase-section {
+    max-width: 400px;
+    width: 100%;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #ffeb3baa;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.6s ease forwards;
+  }
+  #signOutBtn {
+    margin-top: 10px;
+    background-color: #ff6f00;
+    color: white;
+  }
+  #signOutBtn:hover {
+    background-color: #e65100;
+  }
+  #message, #purchase-message {
+    margin-top: 15px;
+    font-weight: 600;
+    text-align: center;
+  }
+  #themeToggleBtn {
+    margin-top: 15px;
+    max-width: 350px;
+  }
+  .light-theme {
+    background: #fefefe;
+    color: #121212;
+  }
+  .light-theme input, .light-theme select {
+    background: #ddd;
+    color: #121212;
+  }
+  .light-theme button {
+    background-color: #ffeb3b;
+    color: #121212;
+  }
+  .light-theme button:hover {
+    background-color: #fbc02d;
+  }
+  .light-theme #purchase-section {
+    background: #fff;
+    box-shadow: 0 0 15px #ffeb3baa;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  .toggle-link {
+    margin-top: 10px;
+    color: #ffd600;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<h1>GGbalancee</h1>
+
+<!-- Авторизация -->
+<div id="auth-section">
+
+  <button id="googleSignInBtn">Войти через Google</button>
+
+  <!-- Форма входа -->
+  <form id="emailSignInForm" autocomplete="off">
+    <input type="email" id="emailInput" placeholder="Email" required />
+    <input type="password" id="passwordInput" placeholder="Пароль" required />
+    <button type="submit">Войти</button>
+  </form>
+  <div class="toggle-link" id="showSignUp">Нет аккаунта? Зарегистрируйтесь</div>
+
+  <!-- Форма регистрации (скрыта по умолчанию) -->
+  <form id="emailSignUpForm" autocomplete="off" style="display:none;">
+    <input type="email" id="signUpEmail" placeholder="Email" required />
+    <input type="password" id="signUpPassword" placeholder="Пароль" required />
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+  <div class="toggle-link" id="showSignIn" style="display:none;">Уже есть аккаунт? Войти</div>
+
+  <div id="auth-message"></div>
+</div>
+
+<!-- Магазин (скрыт до входа) -->
+<div id="purchase-section">
+  <div id="user-info"></div>
+  <button id="signOutBtn">Выйти</button>
+  <button id="themeToggleBtn">Светлая тема</button>
+
+  <h2>Выберите игру и пакет</h2>
+  <select id="gameSelect">
+    <option value="">-- Выберите игру --</option>
+    <option value="standoff2">Standoff 2</option>
+    <option value="brawlstars">Brawl Stars</option>
+    <option value="pubg">PUBG</option>
+  </select>
+
+  <select id="packageSelect" disabled>
+    <option value="">-- Сначала выберите игру --</option>
+  </select>
+
+  <form id="purchaseForm" autocomplete="off">
+    <input type="text" id="userIdInput" placeholder="Введите ваш ID в игре" required />
+    <button type="submit">Купить</button>
+  </form>
+
+  <div id="purchase-message"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBTM27Tfduc1Lmi9tz4a6fIGHrXDoorpbo",
+    authDomain: "ggbalance-bcdec.firebaseapp.com",
+    projectId: "ggbalance-bcdec",
+    storageBucket: "ggbalance-bcdec.firebasestorage.app",
+    messagingSenderId: "143831093979",
+    appId: "1:143831093979:web:015a42ad17104c0a6cf2fe"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const authSection = document.getElementById('auth-section');
+  const purchaseSection = document.getElementById('purchase-section');
+
+  const googleSignInBtn = document.getElementById('googleSignInBtn');
+  const emailSignInForm = document.getElementById('emailSignInForm');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+
+  const emailSignUpForm = document.getElementById('emailSignUpForm');
+  const signUpEmail = document.getElementById('signUpEmail');
+  const signUpPassword = document.getElementById('signUpPassword');
+
+  const authMessage = document.getElementById('auth-message');
+  const userInfo = document.getElementById('user-info');
+  const signOutBtn = document.getElementById('signOutBtn');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const gameSelect = document.getElementById('gameSelect');
+  const packageSelect = document.getElementById('packageSelect');
+  const purchaseForm = document.getElementById('purchaseForm');
+  const userIdInput = document.getElementById('userIdInput');
+  const purchaseMessage = document.getElementById('purchase-message');
+
+  const showSignUpLink = document.getElementById('showSignUp');
+  const showSignInLink = document.getElementById('showSignIn');
+
+  const packagesByGame = {
+    standoff2: [
+      { value: '100gold', text: '100 Голд - 20 000 сум' },
+      { value: '500gold', text: '500 Голд - 90 000 сум' },
+      { value: '1000gold', text: '1000 Голд - 170 000 сум' }
+    ],
+    brawlstars: [
+      { value: '100gems', text: '100 Гемов - 140 000 сум' },
+      { value: '500gems', text: '500 Гемов - 600 000 сум' },
+      { value: '1000gems', text: '1000 Гемов - 1 400 000 сум' }
+    ],
+    pubg: [
+      { value: '100uc', text: '100 UC - 30 000 сум' },
+      { value: '500uc', text: '500 UC - 140 000 сум' },
+      { value: '1000uc', text: '1000 UC - 270 000 сум' }
+    ]
+  };
+
+  let isLightTheme = false;
+
+  themeToggleBtn.onclick = () => {
+    isLightTheme = !isLightTheme;
+    if (isLightTheme) {
+      document.body.classList.add('light-theme');
+      themeToggleBtn.textContent = 'Тёмная тема';
+    } else {
+      document.body.classList.remove('light-theme');
+      themeToggleBtn.textContent = 'Светлая тема';
+    }
+  };
+
+  gameSelect.onchange = () => {
+    const game = gameSelect.value;
+    purchaseMessage.textContent = '';
+    userIdInput.value = '';
+    if (!game) {
+      packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
+      packageSelect.disabled = true;
+      return;
+    }
+    packageSelect.disabled = false;
+    packageSelect.innerHTML = '<option value="">-- Выберите пакет --</option>';
+    packagesByGame[game].forEach(pkg => {
+      const opt = document.createElement('option');
+      opt.value = pkg.value;
+      opt.textContent = pkg.text;
+      packageSelect.appendChild(opt);
+    });
+  };
+
+  googleSignInBtn.onclick = async () => {
+    try {
+      authMessage.textContent = 'Подождите...';
+      const result = await signInWithPopup(auth, provider);
+      authMessage.textContent = '';
+      showPurchaseSection(result.user);
+    } catch (err) {
+      authMessage.textContent = 'Ошибка при входе через Google: ' + err.message;
+    }
+  };
+
+  emailSignInForm.onsubmit = async e => {
+    e.preventDefault();
+    authMessage.textContent = 'Подождите...';
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+      authMessage.textContent = '';
+      showPurchaseSection(userCredential.user);
+    } catch (err) {
+      authMessage.textContent = 'Ошибка входа: ' + err.message;
+    }
+  };
+
+  emailSignUpForm.onsubmit = async e => {
+    e.preventDefault();
+    authMessage.textContent = 'Подождите...';
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail.value, signUpPassword.value);
+      authMessage.textContent = 'Регистрация успешна! Теперь войдите.';
+      signUpEmail.value = '';
+      signUpPassword.value = '';
+      // Автоматически переключаемся на форму входа
+      toggleForms(false);
+    } catch (err) {
+      authMessage.textContent = 'Ошибка регистрации: ' + err.message;
+    }
+  };
+
+  signOutBtn.onclick = async () => {
+    await signOut(auth);
+    purchaseSection.style.display = 'none';
+    authSection.style.display = 'block';
+    authMessage.textContent = '';
+    userInfo.textContent = '';
+    gameSelect.value = '';
+    packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
+    packageSelect.disabled = true;
+    purchaseMessage.textContent = '';
+    userIdInput.value = '';
+  };
+
+  purchaseForm.onsubmit = e => {
+    e.preventDefault();
+    purchaseMessage.textContent = '';
+    if (!gameSelect.value) {
+      purchaseMessage.textContent = 'Пожалуйста, выберите игру';
+      return;
+    }
+    if (!packageSelect.value) {
+      purchaseMessage.textContent = 'Пожалуйста, выберите пакет';
+      return;
+    }
+    if (!userIdInput.value.trim()) {
+      purchaseMessage.textContent = 'Пожалуйста, введите ID в игре';
+      return;
+    }
+
+    purchaseMessage.textContent = 'Обработка покупки...';
+
+    setTimeout(() => {
+      purchaseMessage.textContent = `Покупка пакета "${packageSelect.options[packageSelect.selectedIndex].text}" для игры "${gameSelect.options[gameSelect.selectedIndex].text}" успешно оформлена!`;
+      userIdInput.value = '';
+      packageSelect.value = '';
+      gameSelect.value = '';
+      packageSelect.disabled = true;
+    }, 1200);
+  };
+
+  function showPurchaseSection(user) {
+    authSection.style.display = 'none';
+    purchaseSection.style.display = 'flex';
+    userInfo.textContent = `Вы вошли как: ${user.email || user.displayName || 'Пользователь'}`;
+    purchaseMessage.textContent = '';
+    authMessage.textContent = '';
+  }
+
+  // Переключение между формами входа и регистрации
+  function toggleForms(showSignUpForm) {
+    if (showSignUpForm) {
+      emailSignInForm.style.display = 'none';
+      showSignUpLink.style.display = 'none';
+      emailSignUpForm.style.display = 'flex';
+      showSignInLink.style.display = 'block';
+      authMessage.textContent = '';
+    } else {
+      emailSignInForm.style.display = 'flex';
+      showSignUpLink.style.display = 'block';
+      emailSignUpForm.style.display = 'none';
+      showSignInLink.style.display = 'none';
+      authMessage.textContent = '';
+    }
+  }
+
+  showSignUpLink.onclick = () => toggleForms(true);
+  showSignInLink.onclick = () => toggleForms(false);
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      showPurchaseSection(user);
+    } else {
+      authSection.style.display = 'block';
+      purchaseSection.style.display = 'none';
+      toggleForms(false);
+    }
+  });
+</script>
+
+</body>
+</html>
