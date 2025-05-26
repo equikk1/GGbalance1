@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>GGbalancee — Вход и Регистрация</title>
+<title>GGbalancee — Вход и Регистрация</title> 
 <style>
   body {
     margin: 0; padding: 20px;
@@ -117,6 +117,69 @@
     user-select: none;
     text-decoration: underline;
   }
+  /* Стили для чата */
+  #chat-container {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    background: #222;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 10px #ffeb3b88;
+  }
+  #chat-messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    color: #ffeb3b;
+    font-size: 0.9rem;
+  }
+  .message {
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  .message.user {
+    background: #ffeb3b;
+    color: #121212;
+    align-self: flex-end;
+  }
+  .message.support {
+    background: #444;
+    color: #ffeb3b;
+    align-self: flex-start;
+  }
+  #chat-input-form {
+    display: flex;
+    border-top: 1px solid #444;
+  }
+  #chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    background: #333;
+    color: #ffeb3b;
+    font-size: 1rem;
+  }
+  #chat-input::placeholder {
+    color: #ffd600aa;
+  }
+  #chat-send-btn {
+    background: #ffeb3b;
+    border: none;
+    color: #121212;
+    padding: 0 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #chat-send-btn:hover {
+    background-color: #fbc02d;
+  }
 </style>
 </head>
 <body>
@@ -171,6 +234,16 @@
   </form>
 
   <div id="purchase-message"></div>
+
+  <!-- Чат поддержки -->
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <form id="chat-input-form">
+      <input type="text" id="chat-input" placeholder="Напишите сообщение..." autocomplete="off" required />
+      <button type="submit" id="chat-send-btn">Отправить</button>
+    </form>
+  </div>
+
 </div>
 
 <script type="module">
@@ -210,183 +283,201 @@
   const signUpEmail = document.getElementById('signUpEmail');
   const signUpPassword = document.getElementById('signUpPassword');
 
+  const showSignUp = document.getElementById('showSignUp');
+  const showSignIn = document.getElementById('showSignIn');
+
   const authMessage = document.getElementById('auth-message');
   const userInfo = document.getElementById('user-info');
   const signOutBtn = document.getElementById('signOutBtn');
   const themeToggleBtn = document.getElementById('themeToggleBtn');
+
   const gameSelect = document.getElementById('gameSelect');
   const packageSelect = document.getElementById('packageSelect');
   const purchaseForm = document.getElementById('purchaseForm');
   const userIdInput = document.getElementById('userIdInput');
   const purchaseMessage = document.getElementById('purchase-message');
 
-  const showSignUpLink = document.getElementById('showSignUp');
-  const showSignInLink = document.getElementById('showSignIn');
+  // Чат
+  const chatMessages = document.getElementById('chat-messages');
+  const chatInputForm = document.getElementById('chat-input-form');
+  const chatInput = document.getElementById('chat-input');
 
-  const packagesByGame = {
+  let theme = 'dark';
+
+  // Пакеты для игр
+  const packages = {
     standoff2: [
-      { value: '100gold', text: '100 Голд - 20 000 сум' },
-      { value: '500gold', text: '500 Голд - 90 000 сум' },
-      { value: '1000gold', text: '1000 Голд - 170 000 сум' }
+      { value: 'gold_100', text: '100 Голды — 25 000 сум' },
+      { value: 'gold_500', text: '500 Голды — 80 000 сум' },
+      { value: 'gold_1000', text: '1000 Голды — 170 000 сум' },
     ],
     brawlstars: [
-      { value: '100gems', text: '100 Гемов - 140 000 сум' },
-      { value: '500gems', text: '500 Гемов - 600 000 сум' },
-      { value: '1000gems', text: '1000 Гемов - 1 400 000 сум' }
+      { value: 'gems_100', text: '100 Гемов — 30 000 сум' },
+      { value: 'gems_500', text: '500 Гемов — 120 000 сум' },
+      { value: 'gems_1000', text: '1000 Гемов — 220 000 сум' },
     ],
     pubg: [
-      { value: '100uc', text: '100 UC - 30 000 сум' },
-      { value: '500uc', text: '500 UC - 140 000 сум' },
-      { value: '1000uc', text: '1000 UC - 270 000 сум' }
-    ]
+      { value: 'uc_100', text: '100 UC — 40 000 сум' },
+      { value: 'uc_500', text: '500 UC — 180 000 сум' },
+      { value: 'uc_1000', text: '1000 UC — 350 000 сум' },
+    ],
   };
 
-  let isLightTheme = false;
-
-  themeToggleBtn.onclick = () => {
-    isLightTheme = !isLightTheme;
-    if (isLightTheme) {
-      document.body.classList.add('light-theme');
-      themeToggleBtn.textContent = 'Тёмная тема';
-    } else {
-      document.body.classList.remove('light-theme');
-      themeToggleBtn.textContent = 'Светлая тема';
-    }
-  };
-
-  gameSelect.onchange = () => {
+  // Показать пакеты при выборе игры
+  gameSelect.addEventListener('change', () => {
     const game = gameSelect.value;
-    purchaseMessage.textContent = '';
-    userIdInput.value = '';
+    packageSelect.innerHTML = '';
     if (!game) {
-      packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
       packageSelect.disabled = true;
+      packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
       return;
     }
     packageSelect.disabled = false;
-    packageSelect.innerHTML = '<option value="">-- Выберите пакет --</option>';
-    packagesByGame[game].forEach(pkg => {
-      const opt = document.createElement('option');
-      opt.value = pkg.value;
-      opt.textContent = pkg.text;
-      packageSelect.appendChild(opt);
+    packages[game].forEach(p => {
+      const option = document.createElement('option');
+      option.value = p.value;
+      option.textContent = p.text;
+      packageSelect.appendChild(option);
     });
-  };
+  });
 
-  googleSignInBtn.onclick = async () => {
+  // Вход через Google
+  googleSignInBtn.addEventListener('click', async () => {
     try {
-      authMessage.textContent = 'Подождите...';
-      const result = await signInWithPopup(auth, provider);
-      authMessage.textContent = '';
-      showPurchaseSection(result.user);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка при входе через Google: ' + err.message;
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      authMessage.textContent = 'Ошибка входа через Google: ' + error.message;
     }
-  };
+  });
 
-  emailSignInForm.onsubmit = async e => {
+  // Вход по email
+  emailSignInForm.addEventListener('submit', async e => {
     e.preventDefault();
-    authMessage.textContent = 'Подождите...';
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+      await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
       authMessage.textContent = '';
-      showPurchaseSection(userCredential.user);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка входа: ' + err.message;
+    } catch (error) {
+      authMessage.textContent = 'Ошибка входа: ' + error.message;
     }
-  };
+  });
 
-  emailSignUpForm.onsubmit = async e => {
+  // Регистрация по email
+  emailSignUpForm.addEventListener('submit', async e => {
     e.preventDefault();
-    authMessage.textContent = 'Подождите...';
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail.value, signUpPassword.value);
-      authMessage.textContent = 'Регистрация успешна! Теперь войдите.';
-      signUpEmail.value = '';
-      signUpPassword.value = '';
-      // Автоматически переключаемся на форму входа
+      await createUserWithEmailAndPassword(auth, signUpEmail.value, signUpPassword.value);
+      authMessage.textContent = 'Регистрация успешна! Войдите в аккаунт.';
       toggleForms(false);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка регистрации: ' + err.message;
+    } catch (error) {
+      authMessage.textContent = 'Ошибка регистрации: ' + error.message;
     }
-  };
+  });
 
-  signOutBtn.onclick = async () => {
-    await signOut(auth);
-    purchaseSection.style.display = 'none';
-    authSection.style.display = 'block';
-    authMessage.textContent = '';
-    userInfo.textContent = '';
-    gameSelect.value = '';
-    packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
-    packageSelect.disabled = true;
-    purchaseMessage.textContent = '';
-    userIdInput.value = '';
-  };
+  // Переключение форм регистрации/входа
+  showSignUp.addEventListener('click', () => toggleForms(true));
+  showSignIn.addEventListener('click', () => toggleForms(false));
 
-  purchaseForm.onsubmit = e => {
-    e.preventDefault();
-    purchaseMessage.textContent = '';
-    if (!gameSelect.value) {
-      purchaseMessage.textContent = 'Пожалуйста, выберите игру';
-      return;
-    }
-    if (!packageSelect.value) {
-      purchaseMessage.textContent = 'Пожалуйста, выберите пакет';
-      return;
-    }
-    if (!userIdInput.value.trim()) {
-      purchaseMessage.textContent = 'Пожалуйста, введите ID в игре';
-      return;
-    }
-
-    purchaseMessage.textContent = 'Обработка покупки...';
-
-    setTimeout(() => {
-      purchaseMessage.textContent = `Покупка пакета "${packageSelect.options[packageSelect.selectedIndex].text}" для игры "${gameSelect.options[gameSelect.selectedIndex].text}" успешно оформлена!`;
-      userIdInput.value = '';
-      packageSelect.value = '';
-      gameSelect.value = '';
-      packageSelect.disabled = true;
-    }, 1200);
-  };
-
-  function showPurchaseSection(user) {
-    authSection.style.display = 'none';
-    purchaseSection.style.display = 'flex';
-    userInfo.textContent = `Вы вошли как: ${user.email || user.displayName || 'Пользователь'}`;
-    purchaseMessage.textContent = '';
-    authMessage.textContent = '';
-  }
-
-  // Переключение между формами входа и регистрации
-  function toggleForms(showSignUpForm) {
-    if (showSignUpForm) {
+  function toggleForms(signUp) {
+    if (signUp) {
       emailSignInForm.style.display = 'none';
-      showSignUpLink.style.display = 'none';
-      emailSignUpForm.style.display = 'flex';
-      showSignInLink.style.display = 'block';
-      authMessage.textContent = '';
+      showSignUp.style.display = 'none';
+      emailSignUpForm.style.display = 'block';
+      showSignIn.style.display = 'block';
     } else {
-      emailSignInForm.style.display = 'flex';
-      showSignUpLink.style.display = 'block';
+      emailSignInForm.style.display = 'block';
+      showSignUp.style.display = 'block';
       emailSignUpForm.style.display = 'none';
-      showSignInLink.style.display = 'none';
-      authMessage.textContent = '';
+      showSignIn.style.display = 'none';
     }
+    authMessage.textContent = '';
   }
 
-  showSignUpLink.onclick = () => toggleForms(true);
-  showSignInLink.onclick = () => toggleForms(false);
-
+  // Отслеживание состояния пользователя
   onAuthStateChanged(auth, user => {
     if (user) {
-      showPurchaseSection(user);
+      authSection.style.display = 'none';
+      purchaseSection.style.display = 'flex';
+      userInfo.textContent = `Вы вошли как: ${user.email}`;
+      purchaseMessage.textContent = '';
+      chatMessages.innerHTML = '';
+      loadChatMessages();
     } else {
       authSection.style.display = 'block';
       purchaseSection.style.display = 'none';
-      toggleForms(false);
     }
+  });
+
+  // Выход
+  signOutBtn.addEventListener('click', () => {
+    signOut(auth);
+  });
+
+  // Переключение темы
+  themeToggleBtn.addEventListener('click', () => {
+    if (theme === 'dark') {
+      document.body.classList.add('light-theme');
+      themeToggleBtn.textContent = 'Тёмная тема';
+      theme = 'light';
+    } else {
+      document.body.classList.remove('light-theme');
+      themeToggleBtn.textContent = 'Светлая тема';
+      theme = 'dark';
+    }
+  });
+
+  // Покупка
+  purchaseForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const game = gameSelect.value;
+    const pack = packageSelect.value;
+    const userId = userIdInput.value.trim();
+
+    if (!game || !pack || !userId) {
+      purchaseMessage.textContent = 'Пожалуйста, заполните все поля.';
+      return;
+    }
+
+    purchaseMessage.textContent = `Вы успешно заказали пакет "${packages[game].find(p => p.value === pack).text}" для ID ${userId}. Поддержка свяжется с вами.`;
+    purchaseForm.reset();
+  });
+
+  // --- Чат поддержки (имитация) ---
+  let chatLog = [];
+
+  function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message ' + (sender === 'user' ? 'user' : 'support');
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function loadChatMessages() {
+    chatMessages.innerHTML = '';
+    chatLog.forEach(m => addMessage(m.text, m.sender));
+  }
+
+  chatInputForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    chatLog.push({ text, sender: 'user' });
+    addMessage(text, 'user');
+    chatInput.value = '';
+
+    // Имитируем ответ поддержки через 1.5 секунды
+    setTimeout(() => {
+      const responses = [
+        'Спасибо за ваше сообщение! Мы скоро ответим.',
+        'Поддержка получила ваш запрос.',
+        'Мы работаем над вашим вопросом.',
+        'Пожалуйста, подождите, мы с вами свяжемся.',
+      ];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      chatLog.push({ text: response, sender: 'support' });
+      addMessage(response, 'support');
+    }, 1500);
   });
 </script>
 
