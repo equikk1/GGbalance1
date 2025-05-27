@@ -2,30 +2,60 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GGbalancee — Покупка игровой валюты</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GGbalance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      color: #333;
+      text-align: center;
+    }
+
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 1rem;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      padding: 1rem;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    h1 {
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-
   <header>
-    <h1>Добро пожаловать в GGbalancee</h1>
-    <!-- Навигация, кнопки, и т.д. -->
+    <h1>Добро пожаловать в GGbalance</h1>
   </header>
 
   <main>
-    <!-- Контент страницы: список игр, выбор валюты, форма входа и т.д. -->
-    <p>Выберите игру, пополните баланс и покупайте валюту!</p>
+    <p>Покупайте игровую валюту легко и удобно!</p>
+    <p>Поддержка всегда рядом — нажмите на иконку чата внизу.</p>
   </main>
 
   <footer>
-    <p>&copy; 2025 GGbalancee. Все права защищены.</p>
+    &copy; 2025 GGbalance. Все права защищены.
   </footer>
 
   <!-- Start of Async Callbell Code -->
   <script>
     if (!window.callbellSettings) {
-      window.callbellSettings = {}
+      window.callbellSettings = {};
     }
     window.callbellSettings["uuid"] = "37f9c2da-672a-42f5-b734-6d922bb96f98";
     window.callbellSettings["script_token"] = "MxiuhnPXucj3GvGkaLmSfJyf";
@@ -37,9 +67,7 @@
       var l = function(){
         var s = d.createElement('script');
         s.async = true;
-        s.src = 'https://dash.callbell.eu/include/livechat/' +
-          window.callbellSettings.script_token + '/' +
-          window.callbellSettings.uuid + '.js';
+        s.src = 'https://dash.callbell.eu/include/livechat/' + window.callbellSettings.script_token + '/' + window.callbellSettings.uuid + '.js';
         var x = d.getElementsByTagName('script')[0];
         x.parentNode.insertBefore(s, x);
       };
@@ -47,6 +75,5 @@
     })();
   </script>
   <!-- End of Async Callbell Code -->
-
 </body>
 </html>
