@@ -1,394 +1,200 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>GGbalancee — Вход и Регистрация</title>
-<style>
-  body {
-    margin: 0; padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #ffeb3b;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: background-color 0.4s ease, color 0.4s ease;
-  }
-  h1, h2 {
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  button, select, input {
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    margin-top: 10px;
-    width: 100%;
-    max-width: 350px;
-    font-size: 1rem;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  button {
-    background-color: #ffeb3b;
-    color: #121212;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #fbc02d;
-  }
-  input, select {
-    background-color: #222;
-    color: #ffeb3b;
-  }
-  input::placeholder {
-    color: #ffd600aa;
-  }
-  form {
-    max-width: 350px;
-    width: 100%;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-  #user-info {
-    margin: 15px 0;
-    font-weight: bold;
-    text-align: center;
-  }
-  #purchase-section {
-    max-width: 400px;
-    width: 100%;
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #ffeb3baa;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    animation: fadeIn 0.6s ease forwards;
-  }
-  #signOutBtn {
-    margin-top: 10px;
-    background-color: #ff6f00;
-    color: white;
-  }
-  #signOutBtn:hover {
-    background-color: #e65100;
-  }
-  #message, #purchase-message {
-    margin-top: 15px;
-    font-weight: 600;
-    text-align: center;
-  }
-  #themeToggleBtn {
-    margin-top: 15px;
-    max-width: 350px;
-  }
-  .light-theme {
-    background: #fefefe;
-    color: #121212;
-  }
-  .light-theme input, .light-theme select {
-    background: #ddd;
-    color: #121212;
-  }
-  .light-theme button {
-    background-color: #ffeb3b;
-    color: #121212;
-  }
-  .light-theme button:hover {
-    background-color: #fbc02d;
-  }
-  .light-theme #purchase-section {
-    background: #fff;
-    box-shadow: 0 0 15px #ffeb3baa;
-  }
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
-  .toggle-link {
-    margin-top: 10px;
-    color: #ffd600;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    text-decoration: underline;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GGbalance — Магазин игровой валюты</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background-color 0.5s, color 0.5s;
+    }
+
+    :root {
+      --yellow: #FFD700;
+      --black: #111;
+      --white: #fff;
+    }
+
+    body.light {
+      background-color: var(--white);
+      color: var(--black);
+    }
+
+    body.dark {
+      background-color: var(--black);
+      color: var(--yellow);
+    }
+
+    header {
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      background-color: var(--yellow);
+      color: var(--black);
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .product {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--yellow);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .product:hover {
+      transform: scale(1.02);
+    }
+
+    .buy-btn {
+      margin-top: 10px;
+      background: var(--yellow);
+      color: var(--black);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: var(--yellow);
+      color: var(--black);
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: gray;
+      padding: 1rem;
+    }
+
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #modal-content {
+      background: var(--white);
+      color: var(--black);
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    #modal input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    #modal button {
+      margin-top: 1rem;
+      background: var(--yellow);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-<body>
+<body class="dark">
+  <button class="toggle" onclick="toggleTheme()">Сменить тему</button>
+  <header>GGbalance</header>
+  <div class="container">
+    <h2>🎮 PUBG Mobile — UC</h2>
+    <div class="product">60 UC — 11 000 сум <button class="buy-btn" onclick="buy('PUBG', '60 UC')">Купить</button></div>
+    <div class="product">300 + 25 UC — 59 000 сум <button class="buy-btn" onclick="buy('PUBG', '325 UC')">Купить</button></div>
+    <div class="product">600 + 60 UC — 118 000 сум <button class="buy-btn" onclick="buy('PUBG', '660 UC')">Купить</button></div>
+    <div class="product">1500 + 300 UC — 299 000 сум <button class="buy-btn" onclick="buy('PUBG', '1800 UC')">Купить</button></div>
+    <div class="product">3000 + 850 UC — 590 000 сум <button class="buy-btn" onclick="buy('PUBG', '3850 UC')">Купить</button></div>
+    <div class="product">6000 + 2100 UC — 1 189 000 сум <button class="buy-btn" onclick="buy('PUBG', '8100 UC')">Купить</button></div>
+    <div class="product">12000 + 4200 UC — 2 365 000 сум <button class="buy-btn" onclick="buy('PUBG', '16200 UC')">Купить</button></div>
 
-<h1>GGbalancee</h1>
+    <h2>🪙 Standoff 2 — Голда</h2>
+    <div class="product">100 Голда — 17 200 сум <button class="buy-btn" onclick="buy('Standoff 2', '100 Голда')">Купить</button></div>
+    <div class="product">500 Голда — 74 000 сум <button class="buy-btn" onclick="buy('Standoff 2', '500 Голда')">Купить</button></div>
+    <div class="product">1000 Голда — 131 000 сум <button class="buy-btn" onclick="buy('Standoff 2', '1000 Голда')">Купить</button></div>
+    <div class="product">3000 Голда — 292 500 сум <button class="buy-btn" onclick="buy('Standoff 2', '3000 Голда')">Купить</button></div>
 
-<!-- Авторизация -->
-<div id="auth-section">
+    <h2>💎 Brawl Stars — Гемы</h2>
+    <div class="product">30 + 3 Гемов — 29 500 сум <button class="buy-btn" onclick="buy('Brawl Stars', '33 Гемов')">Купить</button></div>
+    <div class="product">80 + 8 Гемов — 73 000 сум <button class="buy-btn" onclick="buy('Brawl Stars', '88 Гемов')">Купить</button></div>
+    <div class="product">170 + 17 Гемов — 144 500 сум <button class="buy-btn" onclick="buy('Brawl Stars', '187 Гемов')">Купить</button></div>
+    <div class="product">360 Гемов — 287 500 сум <button class="buy-btn" onclick="buy('Brawl Stars', '360 Гемов')">Купить</button></div>
+  </div>
+  <footer>Владелец: <a href="https://t.me/equikk1" style="color: var(--yellow);">@equikk1</a></footer>
 
-  <button id="googleSignInBtn">Войти через Google</button>
+  <div id="modal">
+    <div id="modal-content">
+      <h3 id="modal-title">Покупка</h3>
+      <p id="modal-desc"></p>
+      <input type="text" id="user-id" placeholder="Введите ваш ID/почту">
+      <button onclick="confirmBuy()">Подтвердить</button>
+    </div>
+  </div>
 
-  <!-- Форма входа -->
-  <form id="emailSignInForm" autocomplete="off">
-    <input type="email" id="emailInput" placeholder="Email" required />
-    <input type="password" id="passwordInput" placeholder="Пароль" required />
-    <button type="submit">Войти</button>
-  </form>
-  <div class="toggle-link" id="showSignUp">Нет аккаунта? Зарегистрируйтесь</div>
-
-  <!-- Форма регистрации (скрыта по умолчанию) -->
-  <form id="emailSignUpForm" autocomplete="off" style="display:none;">
-    <input type="email" id="signUpEmail" placeholder="Email" required />
-    <input type="password" id="signUpPassword" placeholder="Пароль" required />
-    <button type="submit">Зарегистрироваться</button>
-  </form>
-  <div class="toggle-link" id="showSignIn" style="display:none;">Уже есть аккаунт? Войти</div>
-
-  <div id="auth-message"></div>
-</div>
-
-<!-- Магазин (скрыт до входа) -->
-<div id="purchase-section">
-  <div id="user-info"></div>
-  <button id="signOutBtn">Выйти</button>
-  <button id="themeToggleBtn">Светлая тема</button>
-
-  <h2>Выберите игру и пакет</h2>
-  <select id="gameSelect">
-    <option value="">-- Выберите игру --</option>
-    <option value="standoff2">Standoff 2</option>
-    <option value="brawlstars">Brawl Stars</option>
-    <option value="pubg">PUBG</option>
-  </select>
-
-  <select id="packageSelect" disabled>
-    <option value="">-- Сначала выберите игру --</option>
-  </select>
-
-  <form id="purchaseForm" autocomplete="off">
-    <input type="text" id="userIdInput" placeholder="Введите ваш ID в игре" required />
-    <button type="submit">Купить</button>
-  </form>
-
-  <div id="purchase-message"></div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import {
-    getAuth,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBTM27Tfduc1Lmi9tz4a6fIGHrXDoorpbo",
-    authDomain: "ggbalance-bcdec.firebaseapp.com",
-    projectId: "ggbalance-bcdec",
-    storageBucket: "ggbalance-bcdec.firebasestorage.app",
-    messagingSenderId: "143831093979",
-    appId: "1:143831093979:web:015a42ad17104c0a6cf2fe"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  const authSection = document.getElementById('auth-section');
-  const purchaseSection = document.getElementById('purchase-section');
-
-  const googleSignInBtn = document.getElementById('googleSignInBtn');
-  const emailSignInForm = document.getElementById('emailSignInForm');
-  const emailInput = document.getElementById('emailInput');
-  const passwordInput = document.getElementById('passwordInput');
-
-  const emailSignUpForm = document.getElementById('emailSignUpForm');
-  const signUpEmail = document.getElementById('signUpEmail');
-  const signUpPassword = document.getElementById('signUpPassword');
-
-  const authMessage = document.getElementById('auth-message');
-  const userInfo = document.getElementById('user-info');
-  const signOutBtn = document.getElementById('signOutBtn');
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  const gameSelect = document.getElementById('gameSelect');
-  const packageSelect = document.getElementById('packageSelect');
-  const purchaseForm = document.getElementById('purchaseForm');
-  const userIdInput = document.getElementById('userIdInput');
-  const purchaseMessage = document.getElementById('purchase-message');
-
-  const showSignUpLink = document.getElementById('showSignUp');
-  const showSignInLink = document.getElementById('showSignIn');
-
-  const packagesByGame = {
-    standoff2: [
-      { value: '100gold', text: '100 Голд - 20 000 сум' },
-      { value: '500gold', text: '500 Голд - 90 000 сум' },
-      { value: '1000gold', text: '1000 Голд - 170 000 сум' }
-    ],
-    brawlstars: [
-      { value: '100gems', text: '100 Гемов - 140 000 сум' },
-      { value: '500gems', text: '500 Гемов - 600 000 сум' },
-      { value: '1000gems', text: '1000 Гемов - 1 400 000 сум' }
-    ],
-    pubg: [
-      { value: '100uc', text: '100 UC - 30 000 сум' },
-      { value: '500uc', text: '500 UC - 140 000 сум' },
-      { value: '1000uc', text: '1000 UC - 270 000 сум' }
-    ]
-  };
-
-  let isLightTheme = false;
-
-  themeToggleBtn.onclick = () => {
-    isLightTheme = !isLightTheme;
-    if (isLightTheme) {
-      document.body.classList.add('light-theme');
-      themeToggleBtn.textContent = 'Тёмная тема';
-    } else {
-      document.body.classList.remove('light-theme');
-      themeToggleBtn.textContent = 'Светлая тема';
-    }
-  };
-
-  gameSelect.onchange = () => {
-    const game = gameSelect.value;
-    purchaseMessage.textContent = '';
-    userIdInput.value = '';
-    if (!game) {
-      packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
-      packageSelect.disabled = true;
-      return;
-    }
-    packageSelect.disabled = false;
-    packageSelect.innerHTML = '<option value="">-- Выберите пакет --</option>';
-    packagesByGame[game].forEach(pkg => {
-      const opt = document.createElement('option');
-      opt.value = pkg.value;
-      opt.textContent = pkg.text;
-      packageSelect.appendChild(opt);
-    });
-  };
-
-  googleSignInBtn.onclick = async () => {
-    try {
-      authMessage.textContent = 'Подождите...';
-      const result = await signInWithPopup(auth, provider);
-      authMessage.textContent = '';
-      showPurchaseSection(result.user);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка при входе через Google: ' + err.message;
-    }
-  };
-
-  emailSignInForm.onsubmit = async e => {
-    e.preventDefault();
-    authMessage.textContent = 'Подождите...';
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-      authMessage.textContent = '';
-      showPurchaseSection(userCredential.user);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка входа: ' + err.message;
-    }
-  };
-
-  emailSignUpForm.onsubmit = async e => {
-    e.preventDefault();
-    authMessage.textContent = 'Подождите...';
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail.value, signUpPassword.value);
-      authMessage.textContent = 'Регистрация успешна! Теперь войдите.';
-      signUpEmail.value = '';
-      signUpPassword.value = '';
-      // Автоматически переключаемся на форму входа
-      toggleForms(false);
-    } catch (err) {
-      authMessage.textContent = 'Ошибка регистрации: ' + err.message;
-    }
-  };
-
-  signOutBtn.onclick = async () => {
-    await signOut(auth);
-    purchaseSection.style.display = 'none';
-    authSection.style.display = 'block';
-    authMessage.textContent = '';
-    userInfo.textContent = '';
-    gameSelect.value = '';
-    packageSelect.innerHTML = '<option value="">-- Сначала выберите игру --</option>';
-    packageSelect.disabled = true;
-    purchaseMessage.textContent = '';
-    userIdInput.value = '';
-  };
-
-  purchaseForm.onsubmit = e => {
-    e.preventDefault();
-    purchaseMessage.textContent = '';
-    if (!gameSelect.value) {
-      purchaseMessage.textContent = 'Пожалуйста, выберите игру';
-      return;
-    }
-    if (!packageSelect.value) {
-      purchaseMessage.textContent = 'Пожалуйста, выберите пакет';
-      return;
-    }
-    if (!userIdInput.value.trim()) {
-      purchaseMessage.textContent = 'Пожалуйста, введите ID в игре';
-      return;
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
     }
 
-    purchaseMessage.textContent = 'Обработка покупки...';
+    let selectedGame = '';
+    let selectedItem = '';
 
-    setTimeout(() => {
-      purchaseMessage.textContent = `Покупка пакета "${packageSelect.options[packageSelect.selectedIndex].text}" для игры "${gameSelect.options[gameSelect.selectedIndex].text}" успешно оформлена!`;
-      userIdInput.value = '';
-      packageSelect.value = '';
-      gameSelect.value = '';
-      packageSelect.disabled = true;
-    }, 1200);
-  };
-
-  function showPurchaseSection(user) {
-    authSection.style.display = 'none';
-    purchaseSection.style.display = 'flex';
-    userInfo.textContent = `Вы вошли как: ${user.email || user.displayName || 'Пользователь'}`;
-    purchaseMessage.textContent = '';
-    authMessage.textContent = '';
-  }
-
-  // Переключение между формами входа и регистрации
-  function toggleForms(showSignUpForm) {
-    if (showSignUpForm) {
-      emailSignInForm.style.display = 'none';
-      showSignUpLink.style.display = 'none';
-      emailSignUpForm.style.display = 'flex';
-      showSignInLink.style.display = 'block';
-      authMessage.textContent = '';
-    } else {
-      emailSignInForm.style.display = 'flex';
-      showSignUpLink.style.display = 'block';
-      emailSignUpForm.style.display = 'none';
-      showSignInLink.style.display = 'none';
-      authMessage.textContent = '';
+    function buy(game, item) {
+      selectedGame = game;
+      selectedItem = item;
+      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modal-title').innerText = `Покупка — ${game}`;
+      document.getElementById('modal-desc').innerText = `Вы выбрали: ${item}`;
     }
-  }
 
-  showSignUpLink.onclick = () => toggleForms(true);
-  showSignInLink.onclick = () => toggleForms(false);
-
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      showPurchaseSection(user);
-    } else {
-      authSection.style.display = 'block';
-      purchaseSection.style.display = 'none';
-      toggleForms(false);
+    function confirmBuy() {
+      const userId = document.getElementById('user-id').value;
+      if (!userId) return alert('Пожалуйста, введите ваш ID или почту.');
+      alert(`Вы заказали ${selectedItem} для ${selectedGame}. Ваш ID: ${userId}. Наш админ @equikk1 свяжется с вами.`);
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('user-id').value = '';
     }
-  });
-</script>
 
+    window.onclick = function(event) {
+      if (event.target == document.getElementById('modal')) {
+        document.getElementById('modal').style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>
